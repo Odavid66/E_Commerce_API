@@ -10,7 +10,9 @@
         public string Role { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        // Navigation properties
         public Cart? Cart { get; set; }
         public List<Order>? Orders { get; set; }
+        public List<RefreshToken>? RefreshTokens { get; set; }
     }
 }

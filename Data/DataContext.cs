@@ -20,6 +20,7 @@ namespace E_Commerce_API.Data
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         
 
         // You can configure relationships and constraints here if needed

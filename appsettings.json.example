@@ -1,0 +1,19 @@
+{
+  "ConnectionStrings": {
+	"DefaultConnection": "Server=<your_server>,1433;Database=<your_database>;User Id=<your_user>;Password=<your_password>;TrustServerCertificate=True;"
+  },
+  "Jwt": {
+	"SecretKey": "<your-super-secret-key-change-this-in-production>",
+	"Issuer": "ECommerceAPI",
+	"Audience": "ECommerceUsers",
+	"AccessTokenExpiryMinutes": 60,
+	"RefreshTokenExpiryDays": 7
+  },
+  "Logging": {
+	"LogLevel": {
+	  "Default": "Information",
+	  "Microsoft.AspNetCore": "Warning"
+	}
+  },
+  "AllowedHosts": "*"
+}
