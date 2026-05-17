@@ -49,6 +49,11 @@ dotnet build
 5. Run the application:
 dotnet run
 
+Note: Run migrations with EF Core
+
+### Known Issues
+- Using EF Core 10.0.0 (10.0.7+ had compatibility issues)
+
 
 ---
 
