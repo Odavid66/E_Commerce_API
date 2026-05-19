@@ -1,6 +1,4 @@
-﻿using E_Commerce_API.Entities;
-
-namespace E_commerce_API.DTOs
+﻿namespace E_commerce_API.DTOs
 {
     public class CartResponseDto
     {
