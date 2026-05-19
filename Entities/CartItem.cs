@@ -7,6 +7,8 @@ namespace E_Commerce_API.Entities
         public int Id { get; set; }
         public int Quantity { get; set; }
 
+        public string Name { get; set; } = string.Empty;
+
         [ForeignKey("CartId")]
         public int CartId { get; set; }
         public Cart? Cart { get; set; }

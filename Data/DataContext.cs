@@ -45,6 +45,11 @@ namespace E_Commerce_API.Data
             modelBuilder.Entity<Product>()
                 .Property(pr => pr.Price)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<Cart>()
+                .HasMany(c => c.CartItems)
+                .WithOne(ci => ci.Cart)
+                .HasForeignKey(ci => ci.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
