@@ -25,12 +25,17 @@ namespace E_commerce_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCartByUserId([FromQuery] UserCartRequestDto request)
+        public async Task<IActionResult> GetCartByUserId()
         {
             if (!TryGetUserId(out int UserId))
             {
                 return Unauthorized();
-            }   
+            }
+            var request = new UserCartRequestDto
+            {
+                ProductId = 0,
+                ProductName = string.Empty
+            };
             var cart = await _cartService.GetCartByUserIdAsync(request, UserId);
             return Ok(cart);
         }
