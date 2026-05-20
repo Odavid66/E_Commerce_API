@@ -11,7 +11,7 @@ using BCrypt.Net;
 
 namespace E_Commerce_API.Services
 {
-    public class AuthService
+    public class AuthService: IAuthService
     {
         private readonly DataContext _context;
         private readonly IConfiguration _configuration;
