@@ -10,9 +10,9 @@ namespace E_Commerce_API.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
 
-        public AuthController(AuthService authService)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
         }
@@ -20,7 +20,7 @@ namespace E_Commerce_API.Controllers
         /// <summary>
         /// Register a new user account
         /// </summary>
-        /// <param name="request">User registration details (email, password, firstName, lastName)</param>
+        /// User registration details(email, password, firstName, lastName)
         /// <returns>Success message and user details</returns>
         [HttpPost("register")]
         [AllowAnonymous]
