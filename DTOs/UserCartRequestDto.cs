@@ -3,6 +3,6 @@
     public class UserCartRequestDto
     {
         public int ProductId { get; set; }
-        public required string ProductName { get; set; }
+        public  string? ProductName { get; set; }
     }
 }

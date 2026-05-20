@@ -1,7 +1,6 @@
 ﻿using E_commerce_API.DTOs;
 using E_commerce_API.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -25,13 +24,13 @@ namespace E_commerce_API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetCartByUserId([FromQuery] UserCartRequestDto request)
+        public async Task<IActionResult> GetCartByUserId()
         {
             if (!TryGetUserId(out int UserId))
             {
                 return Unauthorized();
             }   
-            var cart = await _cartService.GetCartByUserIdAsync(request, UserId);
+            var cart = await _cartService.GetCartByUserIdAsync(UserId);
             return Ok(cart);
         }
 
@@ -52,7 +51,7 @@ namespace E_commerce_API.Controllers
         }
 
         [HttpDelete("RemoveFromCart")]
-        public async Task<IActionResult> RemoveFromCart([FromBody] UserCartRequestDto request)
+        public async Task<IActionResult> RemoveFromCart(UserCartRequestDto request)
         {
             if (!TryGetUserId(out int UserId))
             {
@@ -68,7 +67,7 @@ namespace E_commerce_API.Controllers
         }
 
         [HttpDelete("DeleteCart")]
-        public async Task<IActionResult> DeleteCart([FromBody] UserCartRequestDto request)
+        public async Task<IActionResult> DeleteCart(UserCartRequestDto request)
         {
             if (!TryGetUserId(out int UserId))
             {

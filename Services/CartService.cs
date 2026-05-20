@@ -1,7 +1,6 @@
 ﻿using E_commerce_API.DTOs;
 using E_Commerce_API.Data;
 using E_Commerce_API.Entities;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce_API.Services
@@ -14,7 +13,7 @@ namespace E_commerce_API.Services
             _context = context;
         }
 
-        public async Task<Cart?> CreateCartAsync(UserCartRequestDto request, int UserId)
+        private async Task<Cart> CreateCartAsync(int UserId)
         {
             var cart = await _context.Carts.Include(c => c.User).FirstOrDefaultAsync(u => u.UserId == UserId);
             if (cart is null)
@@ -26,20 +25,31 @@ namespace E_commerce_API.Services
                 };
                 _context.Carts.Add(newCart);
 
-                await _context.SaveChangesAsync();
-                return newCart;
+                try
+                {
+                    await _context.SaveChangesAsync();
+                    return newCart;
+                }
+                catch (DbUpdateException)
+                {
+                    _context.Entry(newCart).State = EntityState.Detached;
+                    cart = await _context.Carts
+                        .Include(c => c.User)
+                        .FirstOrDefaultAsync(u => u.UserId == UserId);
+                    if (cart is not null)
+                    {
+                        return cart;
+                    }
+                    throw;
+                }
             }
             return cart;
         }
 
         public async Task<string?> AddToCartAsync(UserCartRequestDto request, int UserId)
         {
-            var cart = await CreateCartAsync(request, UserId);
-            if (cart is null)
-            {
-                return null;
-            }
-            var cartItem = await _context.CartItems.Include(p => p.Product).FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == request.ProductId);
+            var cart = await CreateCartAsync(UserId);
+            var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == request.ProductId);
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId);
             if (product is not null)
             {
@@ -49,7 +59,7 @@ namespace E_commerce_API.Services
                     {
                         CartId = cart.Id,
                         ProductId = request.ProductId,
-                        Name = request.ProductName,
+                        Name = product.Name,
                         Quantity = 1
                     };
                     _context.CartItems.Add(newcartItem);
@@ -109,7 +119,7 @@ namespace E_commerce_API.Services
             return "success";
         }
 
-        public async Task<List<CartResponseDto>> GetCartByUserIdAsync(UserCartRequestDto request, int UserId)
+        public async Task<List<CartResponseDto>> GetCartByUserIdAsync(int UserId)
         {
             var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == UserId);
             if (cart is null)
