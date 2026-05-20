@@ -3,6 +3,7 @@ using E_commerce_API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_commerce_API.Controllers
 {
@@ -11,8 +12,14 @@ namespace E_commerce_API.Controllers
     [ApiController]
     public class CartController : ControllerBase
     {
-        private readonly CartService _cartService;
-        public CartController(CartService cartService)
+        private readonly ICartService _cartService;
+        private bool TryGetUserId(out int userId)
+        {
+            userId = 0;
+            var value = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(value, out userId);
+        }
+        public CartController(ICartService cartService)  
         {
             _cartService = cartService;
         }
@@ -20,14 +27,22 @@ namespace E_commerce_API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCartByUserId([FromQuery] UserCartRequestDto request)
         {
-            var cart = await _cartService.GetCartByUserIdAsync(request);
+            if (!TryGetUserId(out int UserId))
+            {
+                return Unauthorized();
+            }   
+            var cart = await _cartService.GetCartByUserIdAsync(request, UserId);
             return Ok(cart);
         }
 
-        [HttpPost("add")]
+        [HttpPost("AddToCart")]
         public async Task<IActionResult> AddToCart([FromBody] UserCartRequestDto request)
         {
-            var result = await _cartService.AddToCartAsync(request);
+            if (!TryGetUserId(out int UserId))
+            {
+                return Unauthorized();
+            }
+            var result = await _cartService.AddToCartAsync(request, UserId);
             if (result is null)
             {
                 return BadRequest("Failed to add item to cart");
@@ -36,10 +51,14 @@ namespace E_commerce_API.Controllers
             return Ok($"{item} added to cart");
         }
 
-        [HttpPost("remove")]
+        [HttpDelete("RemoveFromCart")]
         public async Task<IActionResult> RemoveFromCart([FromBody] UserCartRequestDto request)
         {
-            var result = await _cartService.RemoveFromCartAsync(request);
+            if (!TryGetUserId(out int UserId))
+            {
+                return Unauthorized();
+            }
+            var result = await _cartService.RemoveFromCartAsync(request, UserId);
             if (result is null)
             {
                 return BadRequest("Failed to remove item from cart");
@@ -48,10 +67,14 @@ namespace E_commerce_API.Controllers
             return Ok($"{item} removed from cart");
         }
 
-        [HttpDelete]
+        [HttpDelete("DeleteCart")]
         public async Task<IActionResult> DeleteCart([FromBody] UserCartRequestDto request)
         {
-            var result = await _cartService.DeleteCartAsync(request);
+            if (!TryGetUserId(out int UserId))
+            {
+                return Unauthorized();
+            }
+            var result = await _cartService.DeleteCartAsync(request, UserId);
             if (result is null)
             {
                 return BadRequest("Failed to delete cart");

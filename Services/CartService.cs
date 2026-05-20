@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce_API.Services
 {
-    public class CartService
+    public class CartService: ICartService
     {
         private readonly DataContext _context;
         public CartService(DataContext context)
@@ -14,14 +14,14 @@ namespace E_commerce_API.Services
             _context = context;
         }
 
-        public async Task<Cart?> CreateCartAsync(UserCartRequestDto request)
+        public async Task<Cart?> CreateCartAsync(UserCartRequestDto request, int UserId)
         {
-            var cart = await _context.Carts.Include(c => c.User).FirstOrDefaultAsync(u => u.UserId == request.UserId);
+            var cart = await _context.Carts.Include(c => c.User).FirstOrDefaultAsync(u => u.UserId == UserId);
             if (cart is null)
             {
                 var newCart = new Cart
                 {
-                    UserId = request.UserId,
+                    UserId = UserId,
                     CreatedAt = DateTime.UtcNow
                 };
                 _context.Carts.Add(newCart);
@@ -32,42 +32,47 @@ namespace E_commerce_API.Services
             return cart;
         }
 
-        public async Task<string?> AddToCartAsync(UserCartRequestDto request)
+        public async Task<string?> AddToCartAsync(UserCartRequestDto request, int UserId)
         {
-            var cart = CreateCartAsync(request).Result;
+            var cart = await CreateCartAsync(request, UserId);
             if (cart is null)
             {
                 return null;
             }
-            var cartItem = await _context.CartItems.FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == request.ProductId);
-            if (cartItem is null)
+            var cartItem = await _context.CartItems.Include(p => p.Product).FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.ProductId == request.ProductId);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId);
+            if (product is not null)
             {
-                var newcartItem = new CartItem
+                if (cartItem is null)
                 {
-                    CartId = cart.Id,
-                    ProductId = request.ProductId,
-                    Name = request.ProductName,
-                    Quantity = 1
-                };
-                _context.CartItems.Add(newcartItem);
+                    var newcartItem = new CartItem
+                    {
+                        CartId = cart.Id,
+                        ProductId = request.ProductId,
+                        Name = request.ProductName,
+                        Quantity = 1
+                    };
+                    _context.CartItems.Add(newcartItem);
 
-                cart.CartItems ??= new List<CartItem>();
-                cart.CartItems.Add(newcartItem);
-                await _context.SaveChangesAsync();
+                    cart.CartItems ??= new List<CartItem>();
+                    cart.CartItems.Add(newcartItem);
+                    await _context.SaveChangesAsync();
+                }
+                else
+                {
+                    cartItem.Quantity += 1;
+                    _context.CartItems.Update(cartItem);
+                    await _context.SaveChangesAsync();
+                }
+                return "success";
             }
-            else
-            {
-                cartItem.Quantity += 1;
-                _context.CartItems.Update(cartItem);
-                await _context.SaveChangesAsync();
-            }
-            return "success";
+            return null;
 
         }
 
-        public async Task<string?> RemoveFromCartAsync(UserCartRequestDto request)
+        public async Task<string?> RemoveFromCartAsync(UserCartRequestDto request, int UserId)
         {
-            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == request.UserId);
+            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == UserId);
             if (cart is null)
             {
                 return null;
@@ -91,9 +96,9 @@ namespace E_commerce_API.Services
             return "success";
         }
 
-        public async Task<string?> DeleteCartAsync(UserCartRequestDto request)
-        {
-            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == request.UserId);
+        public async Task<string?> DeleteCartAsync(UserCartRequestDto request, int UserId)
+        { 
+            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == UserId);
             if (cart is null)
             {
                 return null;
@@ -104,9 +109,9 @@ namespace E_commerce_API.Services
             return "success";
         }
 
-        public async Task<List<CartResponseDto>> GetCartByUserIdAsync(UserCartRequestDto request)
+        public async Task<List<CartResponseDto>> GetCartByUserIdAsync(UserCartRequestDto request, int UserId)
         {
-            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == request.UserId);
+            var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == UserId);
             if (cart is null)
             {
                 return [];
