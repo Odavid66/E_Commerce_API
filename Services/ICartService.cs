@@ -1,5 +1,4 @@
 ﻿using E_commerce_API.DTOs;
-using E_Commerce_API.Entities;
 
 namespace E_commerce_API.Services
 {
