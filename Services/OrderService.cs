@@ -18,11 +18,7 @@ namespace E_commerce_API.Services
         {
             try
             {
-                List<Order> orders = await _context.Orders.ToListAsync();
-                if (orders is null)
-                {
-                    return [];
-                }
+                List<Order> orders = await _context.Orders.Include(o => o.OrderItems).ToListAsync();
                 return orders.Select(o => new OrderResponseDto
                 {
                     Id = o.Id,
@@ -44,7 +40,7 @@ namespace E_commerce_API.Services
         {
             try
             {
-                var order = await _context.Orders.FindAsync(orderId);
+                var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId);
                 if (order is null)
                 {
                     return null;
@@ -70,7 +66,7 @@ namespace E_commerce_API.Services
         {
             try
             {
-                var user = await _context.Users.Include(u => u.Orders).FirstOrDefaultAsync(u => u.Id == userId);
+                var user = await _context.Users.Include(u => u.Orders).ThenInclude(o => o.OrderItems).FirstOrDefaultAsync(u => u.Id == userId);
                 if (user is null || user.Orders is null)
                 {
                     return [];
