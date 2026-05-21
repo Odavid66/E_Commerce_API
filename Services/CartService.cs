@@ -60,11 +60,12 @@ namespace E_commerce_API.Services
                         CartId = cart.Id,
                         ProductId = request.ProductId,
                         Name = product.Name,
-                        Quantity = 1
+                        Quantity = 1,
+                        Product = product
                     };
                     _context.CartItems.Add(newcartItem);
 
-                    cart.CartItems ??= new List<CartItem>();
+                    
                     cart.CartItems.Add(newcartItem);
                     await _context.SaveChangesAsync();
                 }
