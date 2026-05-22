@@ -15,6 +15,6 @@ namespace E_Commerce_API.Entities
 
         [ForeignKey("ProductId")]
         public int ProductId { get; set; }
-        public Product? Product { get; set; }
+        public required Product Product { get; set; }
     }
 }
