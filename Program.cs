@@ -1,11 +1,13 @@
-using Microsoft.EntityFrameworkCore;
+using E_commerce_API.Services;
+using E_commerce_API.Services.Interfaces;
 using E_Commerce_API.Data;
 using E_Commerce_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Swashbuckle.AspNetCore.Filters;
 using System.Text;
-using E_commerce_API.Services;
-using E_commerce_API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,17 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "Standard Authorization using the Bearer scheme (\"bearer {token}\")",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
 // Register AuthService
 builder.Services.AddScoped<IAuthService, AuthService>();
