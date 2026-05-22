@@ -4,6 +4,7 @@ using E_Commerce_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_commerce_API.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20260519091257_Add Name to CartItem")]
+    partial class AddNametoCartItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,14 +201,7 @@ namespace E_commerce_API.Migrations
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -320,7 +316,7 @@ namespace E_commerce_API.Migrations
                         .IsRequired();
 
                     b.HasOne("E_Commerce_API.Entities.Product", "Product")
-                        .WithMany("CartItems")
+                        .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -374,7 +370,7 @@ namespace E_commerce_API.Migrations
             modelBuilder.Entity("E_Commerce_API.Entities.Product", b =>
                 {
                     b.HasOne("E_Commerce_API.Entities.Category", "ProductCategory")
-                        .WithMany("Products")
+                        .WithMany()
                         .HasForeignKey("CategoryId");
 
                     b.Navigation("ProductCategory");
@@ -396,19 +392,9 @@ namespace E_commerce_API.Migrations
                     b.Navigation("CartItems");
                 });
 
-            modelBuilder.Entity("E_Commerce_API.Entities.Category", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("E_Commerce_API.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
-                });
-
-            modelBuilder.Entity("E_Commerce_API.Entities.Product", b =>
-                {
-                    b.Navigation("CartItems");
                 });
 
             modelBuilder.Entity("E_Commerce_API.Entities.User", b =>

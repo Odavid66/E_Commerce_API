@@ -30,6 +30,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Register AuthService
+builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Configure JWT Authentication
