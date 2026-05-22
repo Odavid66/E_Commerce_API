@@ -19,12 +19,17 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("jwt", new OpenApiSecurityScheme
+    // ? More accurate name
     {
-        Description = "Standard Authorization using the Bearer scheme (\"bearer {token}\")",
+        Description = "JWT Bearer token (\"bearer {token}\")",
         In = ParameterLocation.Header,
         Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
+        Type = SecuritySchemeType.Http,
+        // ? Could also use SecuritySchemeType.Http
+
+        Scheme = "bearer"
+        // ? Explicitly say it's "bearer" scheme
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
