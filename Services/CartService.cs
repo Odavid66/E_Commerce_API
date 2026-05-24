@@ -107,7 +107,7 @@ namespace E_commerce_API.Services
             return "success";
         }
 
-        public async Task<string?> DeleteCartAsync(UserCartRequestDto request, int UserId)
+        public async Task<string?> DeleteCartAsync(int UserId)
         { 
             var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == UserId);
             if (cart is null)
