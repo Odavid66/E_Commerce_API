@@ -1,5 +1,4 @@
 using E_commerce_API.Services;
-using E_commerce_API.Services.Interfaces;
 using E_Commerce_API.Data;
 using E_Commerce_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
