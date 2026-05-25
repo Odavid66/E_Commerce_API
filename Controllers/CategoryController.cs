@@ -1,5 +1,5 @@
 ﻿using E_commerce_API.DTOs;
-using E_commerce_API.Services;
+using E_commerce_API.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
