@@ -34,6 +34,10 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+// register payment services
+builder.Services.AddHttpClient<IPaymentService, PaymentService>();
+
+
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"] ?? "your-super-secret-key-change-this-in-production-12345";
