@@ -54,7 +54,7 @@ namespace E_commerce_API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<ProductResponseDto>> CreateProduct(ProductDto dto)
         {
             var (product, error) = await _productService.CreateProductAsync(dto);
