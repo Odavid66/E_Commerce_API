@@ -29,7 +29,7 @@ namespace E_commerce_API.Controllers
             if (!TryGetUserId(out int UserId))
             {
                 return Unauthorized();
-            }   
+            }
             var cart = await _cartService.GetCartByUserIdAsync(UserId);
             return Ok(cart);
         }

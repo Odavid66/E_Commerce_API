@@ -25,7 +25,7 @@ namespace E_commerce_API.Controllers
 
         [Authorize]
         [HttpPost("checkout")]
-        public async Task<ActionResult<OrderResponseDto?>> Checkout()
+        public async Task<ActionResult<OrderDto?>> Checkout()
         {
             if (!TryGetUserId(out int userId))
             {
@@ -40,7 +40,7 @@ namespace E_commerce_API.Controllers
             {
                 return BadRequest("Checkout failed. Cart item out of stock.");
             }
-            OrderResponseDto? order = await _orderservice.GetOrderByIdAsync(orderId);
+            OrderDto? order = await _orderservice.GetOrderByIdAsync(orderId);
             if(order is null)
             {
                 return NotFound("Order not found after checkout.");
@@ -50,25 +50,25 @@ namespace E_commerce_API.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<OrderResponseDto>>> GetUserOrders()
+        public async Task<ActionResult<List<OrderDto>>> GetUserOrders()
         {
             if (!TryGetUserId(out int userId))
             {
                 return Unauthorized();
             }
-            List<OrderResponseDto> orders = await _orderservice.GetOrdersByUserIdAsync(userId);
+            List<OrderDto> orders = await _orderservice.GetOrdersByUserIdAsync(userId);
             return Ok(orders);
         }
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<OrderResponseDto>> GetOrderByOrderId(int id)
+        public async Task<ActionResult<OrderDto>> GetOrderByOrderId(int id)
         {
             if (!TryGetUserId(out int userId))
             {
                 return Unauthorized();
             }
-            OrderResponseDto? order = await _orderservice.GetOrderByIdAsync(id);
+            OrderDto? order = await _orderservice.GetOrderByIdAsync(id);
             if (order is null)
             {
                 return NotFound("Order not found.");
@@ -78,9 +78,9 @@ namespace E_commerce_API.Controllers
 
         [Authorize(Roles ="Admin")]
         [HttpGet("all")]
-        public async Task<ActionResult<List<OrderResponseDto>>> GetAllOrders()
+        public async Task<ActionResult<List<OrderDto>>> GetAllOrders()
         {
-            List<OrderResponseDto> orders = await _orderservice.GetAllOrdersAsync();
+            List<OrderDto> orders = await _orderservice.GetAllOrdersAsync();
             return Ok(orders);
         }
 

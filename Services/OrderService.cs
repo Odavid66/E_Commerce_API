@@ -14,18 +14,28 @@ namespace E_commerce_API.Services
             _context = context;
         }
 
-        public async Task<List<OrderResponseDto>> GetAllOrdersAsync()
+        public async Task<List<OrderDto>> GetAllOrdersAsync()
         {
             try
             {
                 List<Order> orders = await _context.Orders.Include(o => o.OrderItems).ToListAsync();
-                return orders.Select(o => new OrderResponseDto
+                if(orders is null)
+                {
+                    return [];
+                }
+                return orders.Select(o => new OrderDto
                 {
                     Id = o.Id,
                     TotalAmount = o.TotalAmount,
                     Status = o.Status,
                     CreatedAt = o.CreatedAt,
-                    OrderItems = o.OrderItems
+                    OrderItemDtos = o.OrderItems?.Select(oi => new OrderItemDto
+                    {
+                        Id = oi.Id,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        ProductId = oi.ProductId
+                    }).ToList()
                 }).ToList();
             }
             catch (Exception ex)
@@ -36,22 +46,29 @@ namespace E_commerce_API.Services
             }
         }
 
-        public async Task<OrderResponseDto?> GetOrderByIdAsync(int orderId)
+        public async Task<OrderDto?> GetOrderByIdAsync(int orderId)
         {
             try
             {
                 var order = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == orderId);
-                if (order is null)
+                if (order is null || order.OrderItems is null)
                 {
                     return null;
                 }
-                return new OrderResponseDto
+                var orderItems = order.OrderItems.Select(oi => new OrderItemDto
+                {
+                    Id = oi.Id,
+                    Quantity = oi.Quantity,
+                    UnitPrice = oi.UnitPrice,
+                    ProductId = oi.ProductId
+                }).ToList();
+                return new OrderDto
                 {
                     Id = order.Id,
                     TotalAmount = order.TotalAmount,
                     Status = order.Status,
                     CreatedAt = order.CreatedAt,
-                    OrderItems = order.OrderItems
+                    OrderItemDtos = orderItems
                 };
             }
             catch (Exception ex)
@@ -62,7 +79,7 @@ namespace E_commerce_API.Services
             }
         }
 
-        public async Task<List<OrderResponseDto>> GetOrdersByUserIdAsync(int userId)
+        public async Task<List<OrderDto>> GetOrdersByUserIdAsync(int userId)
         {
             try
             {
@@ -71,13 +88,19 @@ namespace E_commerce_API.Services
                 {
                     return [];
                 }
-                return user.Orders.Select(o => new OrderResponseDto
+                return user.Orders.Select(o => new OrderDto
                 {
                     Id = o.Id,
                     TotalAmount = o.TotalAmount,
                     Status = o.Status,
                     CreatedAt = o.CreatedAt,
-                    OrderItems = o.OrderItems
+                    OrderItemDtos = o.OrderItems?.Select(oi => new OrderItemDto
+                    {
+                        Id = oi.Id,
+                        Quantity = oi.Quantity,
+                        UnitPrice = oi.UnitPrice,
+                        ProductId = oi.ProductId
+                    }).ToList()
                 }).ToList();
             }
             catch (Exception ex)
@@ -115,31 +138,47 @@ namespace E_commerce_API.Services
                     product.Stock -= item.Quantity;
 
                 }
+                var orderItems = items.Select(i => new OrderItemDto 
+                {
+                    ProductId = i.ProductId,
+                    Quantity = i.Quantity,
+                    UnitPrice = i.Product.Price,
+                }).ToList();
 
-                var order = new Order
+                var order = new OrderDto
                 {
                     UserId = userId,
                     Status = "Pending",
                     CreatedAt = DateTime.UtcNow,
                     TotalAmount = TotalPrice,
-                    OrderItems = items.Select(i => new OrderItem
+                    OrderItemDtos = orderItems 
+                };
+               
+                var Order = new Order
+                {
+                    UserId = order.UserId,
+                    Status = order.Status,
+                    CreatedAt = order.CreatedAt,
+                    TotalAmount = order.TotalAmount,
+                    OrderItems = order.OrderItemDtos.Select(i => new OrderItem
                     {
                         ProductId = i.ProductId,
-                        Quantity = i.Quantity,
-                        UnitPrice = i.Product.Price,
-                        Product = i.Product
+                        UnitPrice = (decimal)i.UnitPrice,
+                        Quantity = i.Quantity
                     }).ToList()
+
                 };
                 user.Orders ??= [];
-                user.Orders.Add(order);
-                _context.Orders.Add(order);
-                _context.OrderItems.AddRange(order.OrderItems);
+                user.Orders.Add(Order);
+
+                
+                _context.OrderItems.AddRange(Order.OrderItems);
                 _context.CartItems.RemoveRange(items);
                 _context.Carts.Remove(cart);
 
                 await _context.SaveChangesAsync();
 
-                return order.Id;
+                return Order.Id;
             }
             catch (Exception ex)
             {

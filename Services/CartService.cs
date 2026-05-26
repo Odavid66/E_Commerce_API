@@ -116,6 +116,7 @@ namespace E_commerce_API.Services
             }
 
             _context.Carts.Remove(cart);
+            _context.CartItems.RemoveRange(cart.CartItems);
             await _context.SaveChangesAsync();
             return "success";
         }
