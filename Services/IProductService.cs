@@ -1,6 +1,6 @@
 ﻿using E_commerce_API.DTOs;
 
-namespace E_commerce_API.Services.Interfaces
+namespace E_commerce_API.Services
 {
     public interface IProductService
     {

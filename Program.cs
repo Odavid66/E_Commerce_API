@@ -1,5 +1,4 @@
 using E_commerce_API.Services;
-using E_commerce_API.Services.Interfaces;
 using E_Commerce_API.Data;
 using E_Commerce_API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -19,17 +18,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.AddSecurityDefinition("jwt", new OpenApiSecurityScheme
-    // ? More accurate name
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Description = "JWT Bearer token (\"bearer {token}\")",
+        Description = "Standard Authorization using the Bearer scheme (\"bearer {token}\")",
         In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        // ? Could also use SecuritySchemeType.Http
-
         Scheme = "bearer"
-        // ? Explicitly say it's "bearer" scheme
     });
     options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
@@ -39,11 +34,15 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 
+// register payment services
+builder.Services.AddHttpClient<IPaymentService, PaymentService>();
+
+
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var secretKey = jwtSettings["SecretKey"] ?? "your-super-secret-key-change-this-in-production-12345";
-var issuer = jwtSettings["Issuer"] ?? "YourAppName";
-var audience = jwtSettings["Audience"] ?? "YourAppUsers";
+var issuer = jwtSettings["Issuer"] ?? "ECommerceAPI";
+var audience = jwtSettings["Audience"] ?? "ECommerceUsers";
 
 builder.Services.AddAuthentication(options =>
 {
@@ -61,6 +60,36 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
         ValidateIssuerSigningKey = true
+    };
+
+    // Handle 401 (Unauthorized) challenges with JSON response
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = async context =>
+        {
+            context.HandleResponse();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                success = false,
+                message = "Authorization token is required. Please login first."
+            });
+        },
+        OnAuthenticationFailed = context =>
+        {
+            context.NoResult();
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                success = false,
+                message = $"Token validation failed: {context.Exception.Message}"
+            };
+
+            return context.Response.WriteAsJsonAsync(response);
+        }
     };
 });
 
