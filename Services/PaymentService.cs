@@ -131,7 +131,7 @@ namespace E_commerce_API.Services
                 Status = status,
                 Message = message,
                 AuthorizationUrl = data?["authorization_url"]?.GetValue<string>() ?? string.Empty,
-                Reference = data?["reference"]?.GetValue<string>() ?? string.Empty
+                Reference = reference
             };
 
         }
@@ -151,6 +151,11 @@ namespace E_commerce_API.Services
                     Message = "Payment not found"
                 };
             }
+
+            var secretKey = _config["Paystack:SecretKey"];
+            _httpClient.DefaultRequestHeaders.Clear();
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", secretKey);
 
             var response = await _httpClient.GetAsync(
                 $"https://api.paystack.co/transaction/verify/{reference}");
