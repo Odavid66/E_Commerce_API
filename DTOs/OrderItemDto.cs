@@ -1,5 +1,4 @@
 ﻿using E_Commerce_API.Entities;
-using Microsoft.Identity.Client;
 
 namespace E_commerce_API.DTOs
 {
