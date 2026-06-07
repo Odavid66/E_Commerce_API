@@ -104,11 +104,19 @@ builder.Services.AddScoped<IProductService, ProductService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+// Move these outside the if-statement so they run in Production
+app.UseSwagger();
+app.MapOpenApi();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "E-commerce API v1");
+    c.RoutePrefix = string.Empty; 
+});
+
+// The condition at line 126 remains, but without Swagger inside it
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Any other dev-only middleware
 }
 
 app.UseHttpsRedirection();
