@@ -119,7 +119,7 @@ if (app.Environment.IsDevelopment())
     // Any other dev-only middleware
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // Add authentication and authorization middleware
 app.UseAuthentication();
