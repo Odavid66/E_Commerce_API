@@ -53,6 +53,10 @@ namespace E_commerce_API.Services
             var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == request.ProductId);
             if (product is not null)
             {
+                if(product.Stock == 0)
+                {
+                    return "fail";
+                }
                 if (cartItem is null)
                 {
                     var newcartItem = new CartItem
@@ -71,6 +75,10 @@ namespace E_commerce_API.Services
                 }
                 else
                 {
+                    if(product.Stock <= cartItem.Quantity)
+                    {
+                        return "fail";
+                    }
                     cartItem.Quantity += 1;
                     _context.CartItems.Update(cartItem);
                     await _context.SaveChangesAsync();

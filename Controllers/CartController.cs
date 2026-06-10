@@ -46,6 +46,10 @@ namespace E_commerce_API.Controllers
             {
                 return BadRequest("Failed to add item to cart");
             }
+            if(result == "fail")
+            {
+                return BadRequest("Product is out of stock");
+            }
             var item = request.ProductName;
             return Ok($"{item} added to cart");
         }
