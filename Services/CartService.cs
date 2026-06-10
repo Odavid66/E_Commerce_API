@@ -144,6 +144,7 @@ namespace E_commerce_API.Services
                     productId = t.ProductId,
                     productImg = t.Product.ImageUrl,
                     productdescription = t.Product.Description,
+                    productprice = t.Product.Price,
                     Name = t.Name,
                     Quantity = t.Quantity
                 }).ToList();
