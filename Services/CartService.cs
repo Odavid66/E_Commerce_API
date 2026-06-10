@@ -141,6 +141,9 @@ namespace E_commerce_API.Services
                 var response = cart.CartItems.Select(t => new CartResponseDto
                 {
                     Id = t.Id,
+                    productId = t.ProductId,
+                    productImg = t.Product.ImageUrl,
+                    productdescription = t.Product.Description,
                     Name = t.Name,
                     Quantity = t.Quantity
                 }).ToList();
